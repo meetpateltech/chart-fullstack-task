@@ -1,6 +1,7 @@
 import React from 'react';
-import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, CircleMarker, Popup, MapContainerProps, TileLayerProps } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+
 
 interface CustomerGeographyChartProps {
   data: Array<{ _id: string; count: number }>;
@@ -33,10 +34,15 @@ const cityCoordinates: { [city: string]: [number, number] } = {
 
 export function CustomerGeographyChart({ data }: CustomerGeographyChartProps) {
   return (
-    <MapContainer center={[20, 0]} zoom={2} style={{ height: '400px', width: '100%' }}>
+    <MapContainer 
+      {...{center: [20, 0], zoom: 2} as MapContainerProps}
+      style={{ height: '400px', width: '100%' }}
+    >
       <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        {...{
+          url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        } as TileLayerProps}
       />
       {data.map((cityData, index) => {
         const coordinates = cityCoordinates[cityData._id];
@@ -46,9 +52,13 @@ export function CustomerGeographyChart({ data }: CustomerGeographyChartProps) {
           <CircleMarker
             key={index}
             center={coordinates}
-            radius={Math.log(cityData.count) * 5}
-            fillOpacity={0.6}
-            color="blue"
+            pathOptions={{
+              radius: Math.log(cityData.count) * 5,
+              fillColor: 'blue',
+              fillOpacity: 0.6,
+              color: 'blue',
+              weight: 1
+            }}
           >
             <Popup>
               {cityData._id}: {cityData.count} customers
