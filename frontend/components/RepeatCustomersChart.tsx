@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { ChartContainer } from '@/components/ui/chart';
 
@@ -15,23 +15,35 @@ const chartConfig = {
 };
 
 export function RepeatCustomersChart({ data, interval }: RepeatCustomersChartProps) {
-  const formatXAxis = (tickItem: string) => {
-    if (interval === 'daily') {
-      return new Date(tickItem).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    }
-    return tickItem;
-  };
+  const [formattedData, setFormattedData] = useState(data);
 
-  const formatYAxis = (value: number) => {
-    return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(value);
-  };
+  useEffect(() => {
+    const formatXAxis = (tickItem: string) => {
+      if (interval === 'daily') {
+        return new Date(tickItem).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      }
+      return tickItem;
+    };
+
+    const formatYAxis = (value: number) => {
+      return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(value);
+    };
+
+    const newData = data.map(item => ({
+      ...item,
+      formattedId: formatXAxis(item._id),
+      formattedRepeatCustomers: formatYAxis(item.repeatCustomers)
+    }));
+
+    setFormattedData(newData);
+  }, [data, interval]);
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-background text-foreground p-2 border border-gray-300 rounded shadow">
-          <p className="font-semibold">{formatXAxis(label)}</p>
-          <p>Repeat Customers: {formatYAxis(payload[0].value)}</p>
+          <p className="font-semibold">{payload[0].payload.formattedId}</p>
+          <p>Repeat Customers: {payload[0].payload.formattedRepeatCustomers}</p>
         </div>
       );
     }
@@ -42,19 +54,18 @@ export function RepeatCustomersChart({ data, interval }: RepeatCustomersChartPro
     <ChartContainer config={chartConfig} className="h-[500px]">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
-          data={data}
+          data={formattedData}
           margin={{ top: 20, right: 30, left: 60, bottom: 60 }}
         >
           <CartesianGrid strokeDasharray="3 3" vertical={false} />
           <XAxis
-            dataKey="_id"
-            tickFormatter={formatXAxis}
-            interval={interval === 'daily' ? Math.floor(data.length / 10) : 0}
+            dataKey="formattedId"
+            interval={interval === 'daily' ? Math.floor(formattedData.length / 10) : 0}
             angle={-45}
             textAnchor="end"
             height={60}
           />
-          <YAxis tickFormatter={formatYAxis} />
+          <YAxis />
           <Tooltip content={<CustomTooltip />} />
           <Bar
             dataKey="repeatCustomers"

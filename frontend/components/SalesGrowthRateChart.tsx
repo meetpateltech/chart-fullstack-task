@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Line, LineChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { ChartContainer } from '@/components/ui/chart';
 
@@ -15,26 +15,42 @@ const chartConfig = {
 };
 
 export function SalesGrowthRateChart({ data, interval }: SalesGrowthRateChartProps) {
-  
-  const flattenedData = data[0]?.growthRates || [];
+  const [formattedData, setFormattedData] = useState<Array<{
+    period: string;
+    growthRate: number;
+    formattedPeriod: string;
+    formattedGrowthRate: string;
+  }>>([]);
 
-  const formatXAxis = (tickItem: string) => {
-    if (interval === 'daily') {
-      return new Date(tickItem).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    }
-    return tickItem;
-  };
+  useEffect(() => {
+    const flattenedData = data[0]?.growthRates || [];
 
-  const formatYAxis = (value: number) => {
-    return `${value.toFixed(2)}%`;
-  };
+    const formatXAxis = (tickItem: string) => {
+      if (interval === 'daily') {
+        return new Date(tickItem).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      }
+      return tickItem;
+    };
+
+    const formatYAxis = (value: number) => {
+      return `${value.toFixed(2)}%`;
+    };
+
+    const newData = flattenedData.map(item => ({
+      ...item,
+      formattedPeriod: formatXAxis(item.period),
+      formattedGrowthRate: formatYAxis(item.growthRate)
+    }));
+
+    setFormattedData(newData);
+  }, [data, interval]);
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-background text-foreground p-2 border border-gray-300 rounded shadow">
-          <p className="font-semibold">{formatXAxis(label)}</p>
-          <p>Growth Rate: {formatYAxis(payload[0].value)}</p>
+          <p className="font-semibold">{payload[0].payload.formattedPeriod}</p>
+          <p>Growth Rate: {payload[0].payload.formattedGrowthRate}</p>
         </div>
       );
     }
@@ -45,19 +61,18 @@ export function SalesGrowthRateChart({ data, interval }: SalesGrowthRateChartPro
     <ChartContainer config={chartConfig} className="h-[500px]">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
-          data={flattenedData}
+          data={formattedData}
           margin={{ top: 20, right: 30, left: 60, bottom: 60 }}
         >
           <CartesianGrid strokeDasharray="3 3" vertical={false} />
           <XAxis
-            dataKey="period"
-            tickFormatter={formatXAxis}
-            interval={interval === 'daily' ? Math.floor(flattenedData.length / 10) : 0}
+            dataKey="formattedPeriod"
+            interval={interval === 'daily' ? Math.floor(formattedData.length / 10) : 0}
             angle={-45}
             textAnchor="end"
             height={60}
           />
-          <YAxis tickFormatter={formatYAxis} />
+          <YAxis />
           <Tooltip content={<CustomTooltip />} />
           <Line
             type="monotone"

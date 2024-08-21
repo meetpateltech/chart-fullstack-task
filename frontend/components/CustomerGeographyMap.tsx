@@ -2,13 +2,11 @@ import React from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup, MapContainerProps, TileLayerProps } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
-
 interface CustomerGeographyChartProps {
   data: Array<{ _id: string; count: number }>;
 }
 
 const cityCoordinates: { [city: string]: [number, number] } = {
-  // Add coordinates for your cities here
   'Austin': [30.2672, -97.7431],
   'Plano': [33.0198, -96.6988],
   'Stockton': [37.9577, -121.2903],
@@ -29,20 +27,18 @@ const cityCoordinates: { [city: string]: [number, number] } = {
   'Boston': [42.3601, -71.0589],
   'Henderson': [36.0398, -115.0152],
   'El Paso': [31.7619, -106.4847]
-  // Add more cities...
 };
 
-export function CustomerGeographyChart({ data }: CustomerGeographyChartProps) {
+function CustomerGeographyChart({ data }: CustomerGeographyChartProps) {
   return (
     <MapContainer 
-      {...{center: [20, 0], zoom: 2} as MapContainerProps}
+      center={[20, 0]} 
+      zoom={2} 
       style={{ height: '400px', width: '100%' }}
     >
       <TileLayer
-        {...{
-          url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        } as TileLayerProps}
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
       {data.map((cityData, index) => {
         const coordinates = cityCoordinates[cityData._id];
@@ -52,8 +48,8 @@ export function CustomerGeographyChart({ data }: CustomerGeographyChartProps) {
           <CircleMarker
             key={index}
             center={coordinates}
+            radius={Math.log(cityData.count) * 5} 
             pathOptions={{
-              radius: Math.log(cityData.count) * 5,
               fillColor: 'blue',
               fillOpacity: 0.6,
               color: 'blue',
@@ -69,3 +65,5 @@ export function CustomerGeographyChart({ data }: CustomerGeographyChartProps) {
     </MapContainer>
   );
 }
+
+export default CustomerGeographyChart;
