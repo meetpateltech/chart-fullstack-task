@@ -6,7 +6,7 @@ import { TotalSalesChart } from '@/components/TotalSalesChart';
 import { SalesGrowthRateChart } from '@/components/SalesGrowthRateChart';
 import { NewCustomersChart } from '@/components/NewCustomersChart';
 import { RepeatCustomersChart } from '@/components/RepeatCustomersChart';
-import { CustomerGeographyChart } from '@/components/CustomerGeographyMap';
+import DynamicMap from '@/components/DynamicMap';
 import { CustomerLifetimeValueChart } from '@/components/CustomerLifetimeValueChart';
 import * as api from '@/services/api';
 
@@ -123,7 +123,7 @@ export default function Dashboard() {
               <RepeatCustomersChart data={repeatCustomersData} interval={interval} />
             </TabsContent>
             <TabsContent value="customerGeography">
-              <CustomerGeographyChart data={customerGeographyData} />
+              <DynamicMap data={customerGeographyData} />
             </TabsContent>
             <TabsContent value="customerLifetimeValue">
               <CustomerLifetimeValueChart data={customerLifetimeValueData} />
