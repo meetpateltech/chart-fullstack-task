@@ -1,12 +1,13 @@
 import React from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup, MapContainerProps, TileLayerProps } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import { LatLngExpression } from 'leaflet';
 
 interface CustomerGeographyChartProps {
   data: Array<{ _id: string; count: number }>;
 }
 
-const cityCoordinates: { [city: string]: [number, number] } = {
+const cityCoordinates: { [city: string]: LatLngExpression } = {
   'Austin': [30.2672, -97.7431],
   'Plano': [33.0198, -96.6988],
   'Stockton': [37.9577, -121.2903],
@@ -32,10 +33,10 @@ const cityCoordinates: { [city: string]: [number, number] } = {
 function CustomerGeographyChart({ data }: CustomerGeographyChartProps) {
   return (
     <MapContainer 
-      center={[20, 0]} 
-      zoom={2} 
-      style={{ height: '400px', width: '100%' }}
-    >
+    center={[20, 0] as LatLngExpression}
+    zoom={2} 
+    style={{ height: '400px', width: '100%' }}
+   >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
